@@ -8,7 +8,7 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var projectRouter = require('./routes/project');
 
-var session = require('express-session');
+var session = require('cookie-session');
 var flash = require('connect-flash');
 
 var app = express();
