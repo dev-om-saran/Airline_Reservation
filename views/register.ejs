@@ -17,6 +17,19 @@
             <div class="card">
                 <div class="card-header">
                     <div class="row">
+                        <div class = col>
+                            <% if(message.success) { %>
+                                <div class="alert alert-success">
+                                    <%= message.success %>
+                                </div>
+                                <% } %>
+                            
+                                <% if(message.fail) { %>
+                                    <div class="alert alert-danger">
+                                        <%= message.fail %>
+                                    </div>
+                                    <% } %>
+                        </div>
                         <div class = "col">
                             <a href="/project" class="btn btn-info  float-end">Back to Login Page</a>
                         </div>

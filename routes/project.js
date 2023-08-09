@@ -2,6 +2,7 @@ var express = require('express');
 var read = require('fs');
 var router = express.Router();
 var database = require('../database');
+const { count } = require('console');
 let obj;
 read.readFile('./saved.json' , 'utf-8' , (err , data)=>{
    // console.log(data);
@@ -13,18 +14,8 @@ read.readFile('./saved.json' , 'utf-8' , (err , data)=>{
 
 router.get("/", function(request, response, next){
 
-    query = 'select * from bookings';
-    database.query(query, function(error,data){
-        if(error)
-        {
-            throw error;
-        }
-        else
-        {
-            response.render('project', {message : request.flash(), sampleData:data});       
-        }
-    })
-      
+    response.render('project', {message : request.flash()});       
+  
 });
 
 router.post("/login", function(request, response, next){
@@ -44,18 +35,16 @@ router.post("/login", function(request, response, next){
 
             if(data.length > 0)
             {
-                for(var count = 0; count < data.length; count++)
-                {
-                    if(data[count].user_password == user_password)
+                    if(data[0].user_password == user_password)
                     {
-                        response.redirect(`/project/login/user/${data[count].user_id}`);
+                        response.redirect(`/project/login/user/${data[0].user_id}`);
                     }
                     else
                     {
                         request.flash('fail','Incorrect Password')
                         response.redirect("/project");
                     }
-                }
+
             }
             else
             {
@@ -86,7 +75,7 @@ router.get("/register", function(request, response, next){
 		}	
 		else
 		{
-			response.render('register', {sampleData:data});
+			response.render('register', {message : request.flash(),sampleData:data});
         }
 
     });
@@ -102,22 +91,58 @@ router.post("/register", function(request, response, next){
     var email = request.body.email;
     var addr = request.body.addr; 
 
-    query = ` insert into users 
-              values("${id}", "${name}", "${pass}", "${mobile}", "${email}", "${addr}")`;
+    var query1 = `select * from users`;
 
-    database.query(query, function(error,data){
+    database.query(query1, function(error, data){
+
         if(error)
-        {
-            throw error;
+		{
+			throw error;
+		}	
+		else
+		{
+            var flag = true;
+            for(ctr = 0; ctr < data.length;ctr++)
+            {
+                if(data[ctr].user_name == name )
+                {
+                    flag = false;
+                    break;
+                    
+                }
+            }
+
+            if(flag == false)
+            {
+                request.flash('fail','Username already taken');
+                response.redirect('/project/register');
+            }
+
+            else
+            {
+                var query2 = ` insert into users 
+                values("${id}", "${name}", "${pass}", "${mobile}", "${email}", "${addr}")`;
+
+                database.query(query2, function(error,data){
+                    if(error)
+                    {
+                        throw error;
+                    }
+                    else
+                    {
+                        request.flash('success','New User Created Successfully');
+                        response.redirect('/project');
+                    }
+                });
+
+            }
         }
-        else
-        {
-            request.flash('success','New User Created Successfully');
-            response.redirect('/project');
-        }
-    })
+    });
+
+    
 
 });
+
 
 router.get("/admin_cred", function(request, response, next){
 
